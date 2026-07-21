@@ -14,6 +14,14 @@ class SemanticObjectType(StrEnum):
     LIST = "list"
     CODE = "code"
 
+class AnchorType(StrEnum):
+    SECTION = "section"
+    QUESTION = "question"
+    PARAGRAPH = "paragraph"
+    PAGE = "page"
+    DOCUMENT = "document"
+    UNKNOWN = "unknown"
+
 class ValidationStatus(StrEnum):
     PENDING = "pending"
     VALIDATED = "validated"
@@ -28,9 +36,12 @@ class ProcessingState(StrEnum):
 
 class ProcessingStage(StrEnum):
     INITIALIZATION = "initialization"
+    READING_ORDER = "reading_order"
+    CANDIDATE_GROUPING = "candidate_grouping"
     RELATIONSHIP_DETECTION = "relationship_detection"
-    GROUPING = "grouping"
-    CLASSIFICATION = "classification"
+    CANDIDATE_CLASSIFICATION = "candidate_classification"
+    SECTION_SCOPE_RESOLUTION = "section_scope_resolution"
+    SEMANTIC_ANCHOR_RESOLUTION = "semantic_anchor_resolution"
     OBJECT_CONSTRUCTION = "object_construction"
     VALIDATION = "validation"
     ENRICHMENT = "enrichment"
@@ -39,10 +50,43 @@ class ProcessingStage(StrEnum):
 class RelationshipType(StrEnum):
     PARENT_OF = "parent_of"
     CHILD_OF = "child_of"
+    SIBLING = "sibling"
     REFERENCES = "references"
     TRANSLATION_OF = "translation_of"
     CAPTION_OF = "caption_of"
+    ILLUSTRATES = "illustrates"
+    REFERENCED_BY = "referenced_by"
+    QUESTION_REFERENCE = "question_reference"
     ASSOCIATED_WITH = "associated_with"
+    FIGURE_ASSOCIATION = "figure_association"
+    TABLE_ASSOCIATION = "table_association"
+    TABLE_CAPTION = "table_caption"
+    TABLE_CONTINUATION = "table_continuation"
+    TABLE_HEADER = "table_header"
+    TABLE_CELL = "table_cell"
+    NEXT_PARAGRAPH = "next_paragraph"
+    PREVIOUS_PARAGRAPH = "previous_paragraph"
+    PARAGRAPH_CONTINUATION = "paragraph_continuation"
+    SECTION_MEMBERSHIP = "section_membership"
+    PARENT_SECTION = "parent_section"
+    CHILD_SECTION = "child_section"
+    SIBLING_SECTION = "sibling_section"
+    INDENTED_FROM = "indented_from"
+    NEXT = "next"
+    PREVIOUS = "previous"
+    OVERLAPS = "overlaps"
+    CONTAINS = "contains"
+
+class CandidateStatus(StrEnum):
+    NEW = "new"
+    GROUPED = "grouped"
+    RELATED = "related"
+    CLASSIFIED = "classified"
+    RECONSTRUCTED = "reconstructed"
+    VALIDATED = "validated"
+    REJECTED = "rejected"
+    PERSISTING = "persisting"
+    PERSISTED = "persisted"
 
 class ExtractionSource(StrEnum):
     DOCLING = "docling"

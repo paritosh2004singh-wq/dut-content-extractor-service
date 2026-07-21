@@ -8,8 +8,9 @@ from tests.unit.semantic.test_helpers import DummySuccessStage, DummyFailureStag
 
 @pytest.mark.asyncio
 async def test_pipeline_success():
+    class DummySuccessStage2(DummySuccessStage): pass
     context = SemanticContext()
-    pipeline = SemanticPipeline([DummySuccessStage(), DummySuccessStage()])
+    pipeline = SemanticPipeline([DummySuccessStage(), DummySuccessStage2()])
     
     result_context = await pipeline.execute(context)
     

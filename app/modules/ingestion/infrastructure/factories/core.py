@@ -20,8 +20,9 @@ class ProviderFactory:
         if existing:
             return existing
 
-        # Otherwise resolve the class and instantiate
+        # Resolve the class and instantiate
         provider_cls = self.capability_registry.resolve(capability_type, provider_name)
+            
         instance = provider_cls()
         self.provider_registry.register_instance(instance_key, instance)
         return instance

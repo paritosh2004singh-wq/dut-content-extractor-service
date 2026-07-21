@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+import os
 
 class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
@@ -11,9 +11,12 @@ class Settings(BaseSettings):
     MONGO_DATABASE: str
     ALLOWED_ORIGINS: List[str] = ["*"]
     API_PREFIX: str = "/api/v1"
+    # Providers
+    
+    MISTRAL_API_KEY: str = ""
 
     model_config = SettingsConfigDict(
-        env_file=".env.example",
+        env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore"

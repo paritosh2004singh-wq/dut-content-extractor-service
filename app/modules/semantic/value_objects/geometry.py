@@ -10,3 +10,12 @@ class BoundingBox(BaseModel):
     
     unit: str = Field(default="pt", description="Measurement unit (e.g., pt, px, mm)")
     page_id: Optional[str] = Field(default=None)
+
+class Point(BaseModel):
+    x: float
+    y: float
+
+class Polygon(BaseModel):
+    """Value object for polygonal spatial boundaries."""
+    points: list[Point] = Field(default_factory=list)
+

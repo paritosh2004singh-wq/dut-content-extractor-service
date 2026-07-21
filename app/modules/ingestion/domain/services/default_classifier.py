@@ -1,117 +1,43 @@
 from .classifier import DocumentClassifier
 from ..models.document import DocumentInfo
-from ..strategies.extraction import ExtractionStrategy
+from ..value_objects.enums import DocumentClass
 
 class DefaultDocumentClassifier(DocumentClassifier):
-    def classify(self, document_info: DocumentInfo) -> ExtractionStrategy:
+    def classify(self, document_info: DocumentInfo, file_bytes: bytes = b"") -> DocumentClass:
         mime_type = document_info.mime_type.lower()
         
         if mime_type == "application/pdf":
-            # For now, default all PDFs to a Digital PDF strategy utilizing docling
-            # In a future iteration, this could do a fast-pass check to determine if it's scanned
-            return self._digital_pdf_strategy()
+            return self._classify_pdf(file_bytes)
             
         elif mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            return self._docx_strategy()
+            return DocumentClass.DOCX
             
         elif mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            return self._pptx_strategy()
+            return DocumentClass.PPTX
             
         elif mime_type in ["text/html", "application/xhtml+xml"]:
-            return self._html_strategy()
+            return DocumentClass.HTML
             
         elif mime_type == "text/markdown":
-            return self._markdown_strategy()
+            return DocumentClass.MARKDOWN
             
         elif mime_type.startswith("image/"):
-            return self._image_strategy()
+            return DocumentClass.IMAGE
             
-        return self._unknown_strategy()
+        return DocumentClass.UNKNOWN
 
-    def _digital_pdf_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="docling",
-            ocr_provider=None,
-            layout_provider="docling",
-            table_provider="docling",
-            vision_provider="gemini",
-            formula_provider="docling",
-            fallback_policy="fallback_to_ocr",
-            confidence_policy="strict"
-        )
-
-    def _scanned_pdf_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="pymupdf",
-            ocr_provider="paddleocr",
-            layout_provider="paddleocr",
-            table_provider="paddleocr",
-            vision_provider="gemini",
-            formula_provider="pix2tex",
-            fallback_policy="fail_fast",
-            confidence_policy="lenient"
-        )
-
-    def _hybrid_pdf_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="docling",
-            ocr_provider="paddleocr",
-            layout_provider="docling",
-            table_provider="docling",
-            vision_provider="gemini",
-            formula_provider="docling",
-            fallback_policy="fallback_to_ocr",
-            confidence_policy="adaptive"
-        )
-
-    def _docx_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="docling",
-            layout_provider="docling",
-            table_provider="docling",
-            fallback_policy="fail_fast",
-            confidence_policy="strict"
-        )
-
-    def _pptx_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="docling",
-            layout_provider="docling",
-            table_provider="docling",
-            fallback_policy="fail_fast",
-            confidence_policy="strict"
-        )
-
-    def _html_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="beautifulsoup",
-            layout_provider="beautifulsoup",
-            table_provider="beautifulsoup",
-            fallback_policy="fail_fast",
-            confidence_policy="strict"
-        )
-
-    def _markdown_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="markdown_parser",
-            fallback_policy="fail_fast",
-            confidence_policy="strict"
-        )
-
-    def _image_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="dummy",
-            ocr_provider="paddleocr",
-            layout_provider="paddleocr",
-            table_provider="paddleocr",
-            vision_provider="gemini",
-            fallback_policy="fail_fast",
-            confidence_policy="strict"
-        )
-
-    def _unknown_strategy(self) -> ExtractionStrategy:
-        return ExtractionStrategy(
-            parser_provider="fallback_parser",
-            fallback_policy="fail_fast",
-            confidence_policy="lenient"
-        )
+    def _classify_pdf(self, file_bytes: bytes) -> DocumentClass:
+        if not file_bytes:
+            return DocumentClass.DIGITAL_PDF
+            
+        # Lightweight heuristic: Check for Font and Image resource dictionaries in the raw PDF stream.
+        # This is deterministic and requires no external SDKs.
+        has_text = b"/Font" in file_bytes or b"/Text" in file_bytes
+        has_image = b"/Image" in file_bytes or b"/XObject" in file_bytes
+        
+        if has_text and has_image:
+            return DocumentClass.HYBRID_PDF
+        elif has_image and not has_text:
+            return DocumentClass.SCANNED_PDF
+        else:
+            return DocumentClass.DIGITAL_PDF

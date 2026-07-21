@@ -3,7 +3,7 @@ from .core import IValidator
 from ..context.ingestion_context import IngestionContext
 from ..models.document import CanonicalDocument
 from ..models.result import ExtractionResult
-from ..evidence.core import BaseEvidence
+from ..evidence.core import Evidence
 from ..value_objects.geometry import BoundingBox
 from ..value_objects.confidence import ConfidenceScore
 from ..exceptions.core import ValidationException
@@ -30,7 +30,7 @@ class EvidenceValidator(IValidator):
         self.confidence_validator = ConfidenceScoreValidator()
 
     def validate(self, target: Any) -> bool:
-        if not isinstance(target, BaseEvidence):
+        if not isinstance(target, Evidence):
             return False
         if target.bounding_box:
             self.bbox_validator.validate(target.bounding_box)

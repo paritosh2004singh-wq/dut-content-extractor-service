@@ -23,8 +23,12 @@ class PyMuPDFAdapter(DocumentParser, ImagePreprocessor):
             raise ProviderException("PyMuPDF (fitz) is not installed.")
 
     def parse(self, document: DocumentInput) -> List[DocumentPage]:
+        import os
+        ext = os.path.splitext(document.document_info.filename)[1].lower().strip(".")
+        if not ext:
+            ext = "pdf"
         try:
-            doc = fitz.open(stream=document.file_bytes, filetype="pdf")
+            doc = fitz.open(stream=document.file_bytes, filetype=ext)
         except Exception as e:
             raise ProviderException(f"Failed to open PDF document: {str(e)}")
             

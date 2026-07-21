@@ -1,7 +1,7 @@
 from typing import List, Optional
 from ...domain.models.document import Block
 from ...domain.evidence.core import (
-    BaseEvidence, TextEvidence, TableEvidence, 
+    Evidence, TextEvidence, TableEvidence, 
     FigureEvidence, FormulaEvidence, EmbeddedImageEvidence, LinkEvidence,
     PhysicalLayoutEvidence, LogicalStructureEvidence, SectionEvidence, ParagraphEvidence, HeadingEvidence,
     ListEvidence, CaptionEvidence, FootnoteEvidence, ReferenceEvidence,
@@ -9,7 +9,7 @@ from ...domain.evidence.core import (
 )
 
 class BlockBuilder:
-    def build_from_evidence(self, evidence: BaseEvidence) -> Optional[Block]:
+    def build_from_evidence(self, evidence: Evidence) -> Optional[Block]:
         block_id = evidence.evidence_id
         
         if isinstance(evidence, TextEvidence):

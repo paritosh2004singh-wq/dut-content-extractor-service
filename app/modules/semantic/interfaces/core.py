@@ -18,9 +18,15 @@ class BaseResolver(ABC):
     async def resolve(self, context: SemanticContext) -> SemanticContext:
         pass
 
+
 class BaseEnricher(ABC):
     @abstractmethod
     async def enrich(self, context: SemanticContext) -> SemanticContext:
+        pass
+
+class BaseRepository(ABC):
+    @abstractmethod
+    async def save(self, context: SemanticContext) -> bool:
         pass
 
 class BasePipelineStage(ABC):
@@ -28,6 +34,12 @@ class BasePipelineStage(ABC):
     Abstract contract for a Pipeline Stage.
     Returns a StageResult containing telemetry and the updated context.
     """
+    @abstractmethod
+    async def execute(self, context: SemanticContext) -> StageResult:
+        pass
+
+class BaseReconstructor(BasePipelineStage):
+    """Base interface for all semantic object reconstructors."""
     @abstractmethod
     async def execute(self, context: SemanticContext) -> StageResult:
         pass

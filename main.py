@@ -7,6 +7,9 @@ from app.core.settings import settings
 from app.database.mongodb.client import mongodb
 from app.database.mongodb.indexes import create_indexes
 from app.api.routers.health import router as health_router
+from app.api.routers.upload import router as upload_router
+from app.api.routers.metrics import router as metrics_router
+from app.api.routers.documents import router as documents_router
 import app.core.logging
 
 @asynccontextmanager
@@ -43,6 +46,9 @@ app.add_middleware(
 )
 
 app.include_router(health_router, prefix=settings.API_PREFIX, tags=["Health"])
+app.include_router(upload_router, prefix=settings.API_PREFIX, tags=["Upload"])
+app.include_router(metrics_router, prefix=settings.API_PREFIX, tags=["Metrics"])
+app.include_router(documents_router, prefix=settings.API_PREFIX, tags=["Documents"])
 
 if __name__ == "__main__":
     import uvicorn

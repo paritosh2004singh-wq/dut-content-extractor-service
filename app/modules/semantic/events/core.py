@@ -27,3 +27,34 @@ class RelationshipResolved(DomainEvent):
 class EnrichmentCompleted(DomainEvent):
     object_id: str
     enrichment_type: str
+
+class ReadingOrderComputed(DomainEvent):
+    page_id: str
+    total_blocks: int
+
+class CandidateGrouped(DomainEvent):
+    candidate_id: str
+    total_blocks: int
+
+class RelationshipsBuilt(DomainEvent):
+    total_relationships: int
+
+class CandidateClassified(DomainEvent):
+    candidate_id: str
+    classification: str
+
+class QuestionReconstructed(DomainEvent):
+    object_id: str
+
+class SectionReconstructed(DomainEvent):
+    object_id: str
+
+class FigureReconstructed(DomainEvent):
+    object_id: str
+
+class TableReconstructed(DomainEvent):
+    object_id: str
+
+class SemanticValidationCompleted(DomainEvent):
+    total_validated: int
+    total_failed: int

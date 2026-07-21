@@ -1,26 +1,36 @@
+from typing import List, Optional, TYPE_CHECKING
 from pydantic import BaseModel, Field
-from typing import List, Optional
-from ..models.document import RawDocument, CanonicalDocument, DocumentPage, DocumentInfo
+import uuid
+from ..models.document import DocumentInput, CanonicalDocument, DocumentPage, DocumentInfo
 from ..models.region import DetectedRegion
 from ..strategies.extraction import ExtractionStrategy
-from ..evidence.core import BaseEvidence
+from ..evidence.core import Evidence
 from .artifacts import ArtifactStore
 from .metrics import Diagnostics, ExecutionMetrics, QualityMetrics
-from ..value_objects.enums import PipelineState
+from ..value_objects.enums import PipelineState, DocumentClass
+
+from ..models.execution import ExecutionPlan
 
 class IngestionContext(BaseModel):
+    # Tracing
+    execution_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    trace_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    correlation_id: Optional[str] = None
+    parent_execution: Optional[str] = None
+    
     # Core Inputs
-    document: RawDocument
+    document: DocumentInput
     document_info: Optional[DocumentInfo] = None
     
     # Strategy & Classification
-    classification: Optional[str] = None
+    classification: Optional[DocumentClass] = None
     extraction_strategy: Optional[ExtractionStrategy] = None
+    execution_plan: Optional[ExecutionPlan] = None
     
     # Intermediate Processing State
     pages: List[DocumentPage] = Field(default_factory=list)
     regions: List[DetectedRegion] = Field(default_factory=list)
-    evidence: List[BaseEvidence] = Field(default_factory=list)
+    evidence: List[Evidence] = Field(default_factory=list)
     
     # Canonical Output
     canonical_document: Optional[CanonicalDocument] = None

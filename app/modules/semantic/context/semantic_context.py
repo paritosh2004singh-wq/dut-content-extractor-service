@@ -1,7 +1,12 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field, ConfigDict
 from app.modules.semantic.enums import ProcessingStage, ProcessingState
-from app.modules.semantic.value_objects.relationship import Relationship
+from app.modules.semantic.value_objects.reading_order import ReadingOrder
+from app.modules.semantic.entities.candidate_graph import CandidateGraph
+from app.modules.semantic.entities.section_tree import SectionTree
+from app.modules.semantic.value_objects.compiler_report import CompilerReport
+from app.modules.semantic.value_objects.section_scope import SectionScope
+from app.modules.semantic.value_objects.semantic_anchor import SemanticAnchor
 
 class SemanticContext(BaseModel):
     """
@@ -15,14 +20,24 @@ class SemanticContext(BaseModel):
     pages: List[Dict[str, Any]] = Field(default_factory=list, description="Page dimensions and rotations")
     blocks: List[Dict[str, Any]] = Field(default_factory=list, description="Raw OCR or layout blocks")
     
-    candidate_objects: List[Dict[str, Any]] = Field(default_factory=list, description="Grouped blocks ready for classification")
     semantic_objects: Dict[str, Any] = Field(default_factory=dict, description="Constructed Canonical Domain objects")
-    
-    resolved_relationships: List[Relationship] = Field(default_factory=list, description="First-class relationship graph")
+    semantic_document: Optional[Any] = Field(default=None, description="The sealed Root Aggregate (SemanticDocument)")
+
     
     # State tracking
     pipeline_state: ProcessingState = ProcessingState.IDLE
     current_stage: ProcessingStage = ProcessingStage.INITIALIZATION
+    
+    candidate_graph: CandidateGraph = Field(default_factory=CandidateGraph, description="AST nodes and their relationships")
+    section_tree: SectionTree = Field(default_factory=SectionTree, description="The semantic backbone structure")
+    section_scopes: Dict[str, SectionScope] = Field(default_factory=dict, description="Map of Candidate ID to its enclosing SectionScope")
+    semantic_anchors: Dict[str, SemanticAnchor] = Field(default_factory=dict, description="Map of Candidate ID to its SemanticAnchor")
+    compiler_report: CompilerReport = Field(default_factory=CompilerReport, description="Execution telemetry and coverage")
+    
+    # New additions
+    reading_orders: List[ReadingOrder] = Field(default_factory=list, description="Computed logical reading orders per page")
+    candidates: List[Any] = Field(default_factory=list, description="Entities progressing through the semantic pipeline lifecycle")
+    reconstruction_results: List[Any] = Field(default_factory=list, description="Results of semantic object reconstruction")
     
     # Diagnostics & Audit
     diagnostics: Dict[str, Any] = Field(default_factory=dict, description="Timing, memory, or metric diagnostics")

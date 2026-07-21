@@ -89,3 +89,11 @@ def extracted_entities() -> AsyncIOMotorCollection:
 def system_config() -> AsyncIOMotorCollection:
     """Get the system_config collection."""
     return get_database()["system_config"]
+
+def compiler_telemetry() -> AsyncIOMotorCollection:
+    """Get the compiler_telemetry collection for region compiler state tracking."""
+    return get_database()["compiler_telemetry"]
+
+def canonical_documents() -> AsyncIOMotorCollection:
+    """Get the canonical_documents collection for compiled output."""
+    return get_database()["canonical_documents"]

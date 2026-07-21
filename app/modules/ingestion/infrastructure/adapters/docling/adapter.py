@@ -4,7 +4,7 @@ import io
 try:
     from docling.document_converter import DocumentConverter
     from docling.datamodel.document import DoclingDocument
-    from docling.datamodel.base_models import ItemType
+    from docling.datamodel.document import DocItemLabel as ItemType
     DOCLING_AVAILABLE = True
 except ImportError:
     DOCLING_AVAILABLE = False
@@ -52,10 +52,11 @@ class DoclingAdapter(DocumentParser):
 
     def parse(self, document: DocumentInput) -> List[DocumentPage]:
         try:
-            # Write bytes to a temporary buffer since docling often expects a file path or stream
+            from docling.datamodel.document import DocumentStream
+            # Write bytes to a temporary buffer since docling expects a DocumentStream
             file_stream = io.BytesIO(document.file_bytes)
-            file_stream.name = document.document_info.filename # Docling might need extension
-            result = self.converter.convert(file_stream)
+            doc_stream = DocumentStream(name=document.document_info.filename, stream=file_stream)
+            result = self.converter.convert(doc_stream)
             doc = result.document
         except Exception as e:
             raise ProviderException(f"Failed to convert document with Docling: {str(e)}")
@@ -155,7 +156,7 @@ class DoclingAdapter(DocumentParser):
             elif item.label == ItemType.PAGE_HEADER or item.label == ItemType.PAGE_FOOTER:
                 evidence_item = EvidenceBuilder.build_logical_structure_evidence(
                     provenance=provenance,
-                    layout_type=item.label.value,
+                    structure_type=item.label.value,
                     content=item.text,
                     bbox=bbox
                 )
@@ -178,7 +179,7 @@ class DoclingAdapter(DocumentParser):
                 if hasattr(item, "text") and item.text:
                     evidence_item = EvidenceBuilder.build_logical_structure_evidence(
                         provenance=provenance,
-                        layout_type=item.label.value if hasattr(item.label, "value") else str(item.label),
+                        structure_type=item.label.value if hasattr(item.label, "value") else str(item.label),
                         content=item.text,
                         bbox=bbox
                     )

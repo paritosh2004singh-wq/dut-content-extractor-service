@@ -14,10 +14,9 @@ class ClassificationStage(PipelineStage):
             return context
 
         try:
-            strategy = self.classifier.classify(context.document_info)
-            context.extraction_strategy = strategy
-            context.classification = strategy.parser_provider
-            context.record_history(f"Completed {ProcessingStage.CLASSIFICATION.value}")
+            document_class = self.classifier.classify(context.document_info, context.document.file_bytes)
+            context.classification = document_class
+            context.record_history(f"Completed {ProcessingStage.CLASSIFICATION.value}: {document_class.value}")
         except Exception as e:
             context.add_error(f"Classification failed: {str(e)}")
 

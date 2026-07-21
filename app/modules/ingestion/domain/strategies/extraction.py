@@ -3,11 +3,15 @@ from typing import Optional
 
 class ExtractionStrategy(BaseModel):
     model_config = ConfigDict(frozen=True)
-    parser_provider: str
-    ocr_provider: Optional[str] = None
-    layout_provider: Optional[str] = None
-    table_provider: Optional[str] = None
-    vision_provider: Optional[str] = None
-    formula_provider: Optional[str] = None
+    
+    # Required Capabilities
+    requires_text_extraction: bool = True
+    requires_layout_analysis: bool = False
+    requires_ocr: bool = False
+    requires_table_extraction: bool = False
+    requires_formula_recognition: bool = False
+    requires_figure_analysis: bool = False
+    
+    # Execution Policies
     fallback_policy: str = "fail_fast"
     confidence_policy: str = "strict"

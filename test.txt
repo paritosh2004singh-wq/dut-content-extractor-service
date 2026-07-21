@@ -1,0 +1,1 @@
+uv run pytest tests/golden/test_pipeline_integration.py -v -s

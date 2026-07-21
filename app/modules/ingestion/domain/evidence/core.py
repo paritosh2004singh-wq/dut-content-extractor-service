@@ -23,6 +23,7 @@ class TextLine(BaseModel):
     text: str
     bounding_box: Optional[BoundingBox] = None
     spans: List[TextSpan] = Field(default_factory=list)
+    confidence: Optional[ConfidenceScore] = None
 
 class TextEvidence(Evidence):
     text: str
@@ -38,10 +39,12 @@ class TableCell(BaseModel):
     col_span: int = 1
     is_header: bool = False
     bounding_box: Optional[BoundingBox] = None
+    confidence: Optional[ConfidenceScore] = None
 
 class TableRow(BaseModel):
     model_config = ConfigDict(frozen=True)
     cells: List[TableCell] = Field(default_factory=list)
+    confidence: Optional[ConfidenceScore] = None
 
 class TableEvidence(Evidence):
     rows: List[TableRow] = Field(default_factory=list)

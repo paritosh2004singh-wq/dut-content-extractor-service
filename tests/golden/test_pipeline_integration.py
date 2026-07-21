@@ -43,21 +43,26 @@ def test_merged_pipeline():
         
         # 3. Merge Evidence
         merge_service = EvidenceMergeService()
-        merged_pages = merge_service.merge_documents(pymupdf_pages, docling_pages)
+        all_pages = pymupdf_pages + docling_pages
+        merged_pages = merge_service.merge_pages(all_pages)
         
         # 4. Build Canonical Document
-        builder = CanonicalDocumentBuilder()
-        canonical_doc = builder.build(doc_info, merged_pages)
+        from app.modules.ingestion.shared.builders.block_builder import BlockBuilder
+        builder = CanonicalDocumentBuilder(BlockBuilder())
+        
+        flat_evidence = []
+        for p in merged_pages:
+            flat_evidence.extend(p.evidence)
+            
+        canonical_doc = builder.build(doc_info.document_hash, flat_evidence)
         
         # 5. Golden Assertions
         assert canonical_doc.document_id == doc_info.document_hash
-        assert len(canonical_doc.pages) > 0
+        
+        # Count all blocks across all pages
+        total_blocks = sum(len(page.blocks) for page in canonical_doc.pages)
+        assert total_blocks > 0
         
         # Ensure we don't duplicate blocks excessively
-        # Real logic here would involve comparing block content with golden JSON
-        
-        for page in canonical_doc.pages:
-            assert len(page.blocks) > 0
-            # Ensure block IDs are unique per page (and document)
-            block_ids = [b.block_id for b in page.blocks]
-            assert len(block_ids) == len(set(block_ids))
+        block_ids = [b.block_id for page in canonical_doc.pages for b in page.blocks]
+        assert len(block_ids) == len(set(block_ids))

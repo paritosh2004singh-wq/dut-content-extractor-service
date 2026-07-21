@@ -21,7 +21,7 @@ class DummyFailureStage(BasePipelineStage):
     Dummy pipeline stage for testing that explicitly fails the context.
     """
     async def execute(self, context: SemanticContext) -> StageResult:
-        context.current_stage = ProcessingStage.CLASSIFICATION
+        context.current_stage = ProcessingStage.CANDIDATE_CLASSIFICATION
         context.add_error("DummyFailureStage", "Simulated failure")
         # Context failure should cause pipeline abort
         return StageResult(

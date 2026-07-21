@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from datetime import datetime
 
 class DocumentInfo(BaseModel):
@@ -40,6 +40,10 @@ class PageImage(BaseModel):
     image_bytes: bytes
     width: int
     height: int
+    dpi: Optional[int] = None
+    rotation: float = 0.0
+    checksum: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
 class DocumentPage(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -49,13 +53,35 @@ class DocumentPage(BaseModel):
     images: List[PageImage] = Field(default_factory=list)
     evidence: List[Any] = Field(default_factory=list)
 
+class QuestionOption(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    id: str
+    text_marathi: str
+    text_english: str
+    image_reference: Optional[str] = None
+
+class ExamQuestion(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    question_number: int
+    question_marathi: str
+    question_english: str
+    image_reference: Optional[str] = None
+    options: List[QuestionOption]
+
 class Block(BaseModel):
     model_config = ConfigDict(frozen=True)
     block_id: str
     content: str
     block_type: str
 
+class CanonicalPage(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    page_number: int
+    blocks: List[Block] = Field(default_factory=list)
+
 class CanonicalDocument(BaseModel):
     model_config = ConfigDict(frozen=True)
     document_id: str
-    blocks: List[Block] = Field(default_factory=list)
+    pages: List[CanonicalPage] = Field(default_factory=list)
+    questions: List[ExamQuestion] = Field(default_factory=list)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
